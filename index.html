@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RhinoBlox</title>
+  <!-- Blockly files -->
+  <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/10.3.1/blockly.min.js" integrity="sha512-T4NPanTIWuaVzkc/pnwSHo4zILLkZIIK/6pLYQjLQ+lBx7Dchw4Bqsc4GOosj4Puh3RBP6t2RBlkcN/U7HolDA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@blockly/theme-dark@6.0.5/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mit-app-inventor/blockly-plugin-workspace-multiselect@0.1.11/dist/index.min.js"></script>
+  <!-- Special APIs -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.js" integrity="sha512-ZHzbWDQKpcZxIT9l5KhcnwQTidZFzwK/c7gpUUsFvGjEsxPusdUCyFxjjpc7e/Wj7vLhfMujNx7COwOmzbn+2w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.css" integrity="sha512-kT0v1BxcibEO2Yc+6Z3W1gNsN+2cZ/U6uITqHhIJl8SAvt9vpO8llugdCPXA7cCnp8G1xbuSqHNMRaR3Zlz9yA==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="topnav">
+    <a class="active" href="" onclick="location.reload()">RhinoBlox</a>
+    <a id="editorChanger" style="float: left; cursor: pointer" onclick="changeEditor()">JavaScript</a>
+    <a style="cursor: pointer">
+      <input type="file" accept=".rbp, .json" id="actual-btn" hidden/><label style="cursor: pointer" for="actual-btn">Load</label>
+    </a>
+    <a style="cursor: pointer" onclick="downloadFile('project.rbp', JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())))">Save</a>
+  </div>
+
+  <section id="blocklyContainer">
+    <div id="blocklyDiv"></div>
+    <div style="height: 650px;" id="monacoEditor"></div>
+  </section>
+
+  <section id="consoleContainer">
+      <button class=controlButton style="margin-right: 1px" onclick="clearConsole(); clearCanvas(); forceDeleteTimers(); runCodeWithConsole()">
+        <img draggable="false" class="controlButtonImg" src="data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNi42MyAxNy41Ij48ZGVmcz48c3R5bGU+LmNscy0xLC5jbHMtMntmaWxsOiM0Y2JmNTY7c3Ryb2tlOiM0NTk5M2Q7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO30uY2xzLTJ7c3Ryb2tlLXdpZHRoOjEuNXB4O308L3N0eWxlPjwvZGVmcz48dGl0bGU+aWNvbi0tZ3JlZW4tZmxhZzwvdGl0bGU+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNLjc1LDJBNi40NCw2LjQ0LDAsMCwxLDguNDQsMmgwYTYuNDQsNi40NCwwLDAsMCw3LjY5LDBWMTIuNGE2LjQ0LDYuNDQsMCwwLDEtNy42OSwwaDBhNi40NCw2LjQ0LDAsMCwwLTcuNjksMCIvPjxsaW5lIGNsYXNzPSJjbHMtMiIgeDE9IjAuNzUiIHkxPSIxNi43NSIgeDI9IjAuNzUiIHkyPSIwLjc1Ii8+PC9zdmc+">
+      </button>
+      <button class=controlButton style="margin-right: 0px; margin-left: 0px; padding: 0px" onclick="clearConsole(); clearCanvas(); forceDeleteTimers()">
+        <img draggable="false" class="controlButtonImg" width="19px" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxNCAxNCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTQgMTQ7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCS5zdDB7ZmlsbDojRUM1OTU5O3N0cm9rZTojQjg0ODQ4O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9Cjwvc3R5bGU+Cjxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iNC4zLDAuNSA5LjcsMC41IDEzLjUsNC4zIDEzLjUsOS43IDkuNywxMy41IDQuMywxMy41IDAuNSw5LjcgMC41LDQuMyAiLz4KPC9zdmc+Cg==">
+      </button>
+      <button hidden class=controlButton style="margin-left: 0.8px; padding: 0px" onclick='
+      navigator.clipboard.writeText(getCode());
+      Toastify({
+        text: "JavaScript code copied!",
+        duration: 1000,
+        style: {
+          background: "linear-gradient(to right, #689F38, #8BC34A)",
+        },
+      }).showToast();
+      '>
+        <img draggable="false" class="controlButtonImg" src="resources/code.png" width="24px">
+      </button>
+      <button class=controlButton style="padding: 0px; float: right" onclick="changeConsole()">
+        <img draggable="false" class="controlButtonImg" src="resources/canvas.png" width="19px">
+      </button>
+    <div id="console"></div>
+    <div id="canvasContainer" hidden>
+      <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+  </section>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Website" colour="0">
+      <block type="site_mainhtml"></block>
+      <block type="site_element"></block>
+      <block type="site_elementproperties"></block>
+      <block type="site_text"></block>
+      <block type="site_break"></block>
+      <label text=" "></label>
+      <block type="site_style"></block>
+      <block type="site_selector"></block>
+      <block type="site_property"></block>
+      <label text=" "></label>
+      <block type="site_script"></block>
+    </category>
+    <sep></sep>
+    <category name="WebUtils" colour="#2E7D32">
+      <block type="web_time"></block>
+      <block type="web_browser"></block>
+      <block type="web_language"></block>
+      <block type="web_online"></block>
+      <block type="web_connectioninfo"></block>
+      <block type="web_screeninfo"></block>
+      <label text=" "></label>
+      <block type="web_pageinfo"></block>
+      <block type="web_setpageinfo">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_opentab">
+        <value name="URL">
+          <shadow type="text">
+            <field name="TEXT">https://www.example.com</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_replacetab">
+        <value name="URL">
+          <shadow type="text">
+            <field name="TEXT">https://www.example.com</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_window">
+        <value name="INPUT">
+          <shadow type="text">
+            <field name="TEXT">https://www.example.com</field>
+          </shadow>
+        </value>
+        <value name="WIDTH">
+          <shadow type="math_number">
+            <field name="NUM">500</field>
+          </shadow>
+        </value>
+        <value name="HEIGHT">
+          <shadow type="math_number">
+            <field name="NUM">300</field>
+          </shadow>
+        </value>
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_reload"></block>
+      <label text=" "></label>
+      <block type="web_alert">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      </block>
+      <block type="web_prompt">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+        <value name="DEFAULT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_confirm">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <label text=" "></label>
+      <block type="web_search">
+        <value name="REQUEST">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_sound">
+        <value name="SOUND">
+          <shadow type="text">
+            <field name="TEXT">https://bit.ly/example-sound</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_download">
+        <value name="DATA">
+          <shadow type="text">
+            <field name="TEXT">data:,abc</field>
+          </shadow>
+        </value>
+        <value name="FILE">
+          <shadow type="text">
+            <field name="TEXT">file.txt</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="web_copy">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Logic" categorystyle="logic_category">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_ternary"></block>
+      <block type="logic_null_test"></block>
+      <block type="logic_null"></block>
+      <block type="logic_undefined"></block>
+    </category>
+    <category name="Loops" categorystyle="loop_category">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+      <block type="loops_interval">
+        <value name="TIME">
+          <shadow type="math_number">
+            <field name="NUM">1000</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="loops_stop_interval"></block>
+      <block type="loops_timeout">
+        <value name="TIME">
+          <shadow type="math_number">
+            <field name="NUM">1000</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="loops_stop_timeout"></block>
+    </category>
+    <category name="Math" categorystyle="math_category">
+      <block type="math_number" gap="32">
+        <field name="NUM">123</field>
+      </block>
+      <block type="math_arithmetic">
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="B">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_single">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">9</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_trig">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">45</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constant"></block>
+      <block type="math_number_property">
+        <value name="NUMBER_TO_CHECK">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_round">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">3.1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo">
+        <value name="DIVIDEND">
+          <shadow type="math_number">
+            <field name="NUM">64</field>
+          </shadow>
+        </value>
+        <value name="DIVISOR">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constrain">
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="LOW">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="HIGH">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+      <block type="math_atan2">
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Text" categorystyle="text_category">
+      <block type="text"></block>
+      <block type="text_multiline"></block>
+      <block type="text_join"></block>
+      <block type="text_append">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR"></field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR"></field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_count">
+        <value name="SUB">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_replace">
+        <value name="FROM">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TO">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_reverse">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Lists" categorystyle="list_category">
+      <block type="lists_create_with">
+        <mutation items="0"></mutation>
+      </block>
+      <block type="lists_create_with"></block>
+      <block type="lists_repeat">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getIndex">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_setIndex">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getSublist">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_split">
+        <value name="DELIM">
+          <shadow type="text">
+            <field name="TEXT">,</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_sort"></block>
+      <block type="lists_reverse"></block>
+    </category>
+    <category name="Types" colour="90">
+      <block type="types_strictlyequals"></block>
+      <block type="types_typeof"></block>
+      <block type="types_tostring"></block>
+      <block type="types_tonumber"></block>
+      <block type="types_toboolean"></block>
+    </category>
+    <category name="Colour" categorystyle="colour_category">
+      <block type="colour_picker"></block>
+      <block type="colour_random"></block>
+      <block type="colour_rgb">
+        <value name="RED">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="GREEN">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="BLUE">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="colour_blend">
+        <value name="COLOUR1">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="COLOUR2">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#3333ff</field>
+          </shadow>
+        </value>
+        <value name="RATIO">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Music" colour="190">
+      <block type="music_pitch_field"></block>
+      <block type="music_transpose">
+        <value name="SEMITONES">
+          <shadow type="math_number">
+            <field name="NUM">12</field>
+          </shadow>
+        </value>
+        <value name="PITCH">
+          <shadow type="music_pitch_field">
+          </shadow>
+        </value>
+      </block>
+      <label text=" "></label>
+      <block type="music_create_synth"></block>
+      <block type="music_create_synth_extended">
+        <value name="VOLUME">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+        <value name="D">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+        <value name="S">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+        <value name="R">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="music_create_custom_synth">
+        <value name="NAME">
+          <shadow type="objects_object">
+          </shadow>
+        </value>
+      </block>
+      <block type="music_play">
+        <value name="SPEED">
+          <shadow type="math_number">
+            <field name="NUM">8</field>
+          </shadow>
+        </value>
+        <value name="PITCH">
+          <shadow type="music_pitch_field">
+          </shadow>
+        </value>
+        <value name="TIME">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Canvas" colour="60">
+      <block type="canvas_getmousex"></block>
+      <block type="canvas_getmousey"></block>
+      <block type="canvas_mousedown"></block>
+      <label text=" "></label>
+      <block type="canvas_image"></block>
+      <block type="canvas_getbg"></block>
+      <block type="canvas_changebg">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ffffff</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_clear"></block>
+      <block type="canvas_draw_fillrect">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="X1">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="Y1">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="X2">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y2">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_draw_strokerect">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="WIDTH">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="X1">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="Y1">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="X2">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y2">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_draw_clearrect">
+        <value name="X1">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="Y1">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="X2">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y2">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_fillcircle">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="RADIUS">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_strokecircle">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="WIDTH">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="RADIUS">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_drawpath">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#000000</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_drawstrokepath">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#000000</field>
+          </shadow>
+        </value>
+        <value name="WIDTH">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_movecontext">
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_drawline">
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_filltext">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#000000</field>
+          </shadow>
+        </value>
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="CONTENT">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="FONT">
+          <shadow type="text">
+            <field name="TEXT">30px Arial</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="canvas_stroketext">
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#000000</field>
+          </shadow>
+        </value>
+        <value name="WIDTH">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="CONTENT">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="FONT">
+          <shadow type="text">
+            <field name="TEXT">30px Arial</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Advanced" colour="#555555">
+      <block type="test_getconsole"></block>
+      <block type="test_clear"></block>
+      <block type="test_write">
+        <value name="INPUT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="test_colorwrite">
+        <value name="INPUT">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+        <value name="COLOR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ffffff</field>
+          </shadow>
+        </value>
+      </block>
+      <label text=" "></label>
+      <block type="advanced_flipdisplay"></block>
+      <label text=" "></label>
+      <block type="advanced_addeventlistener"></block>
+      <block type="test_try"></block>
+      <block type="test_inline_function"></block>
+    </category>
+    <sep></sep>
+    <category name="Variables" categorystyle="variable_category" custom="VARIABLE">
+    </category>
+    <category name="Functions" categorystyle="procedure_category"
+    custom="PROCEDURE"></category>
+  </xml>
+
+  <!-- Initialize Blockly -->
+  <script src="field_pitch.js"></script>
+  <script src="custom_blocks.js"></script>
+  <script src="inject.js"></script>
+
+  <div class="footer">
+    <a class="blockly-link" href="https://developers.google.com/blockly" target="_blank">Blockly</a>
+    <b>|</b>
+    <a class="blockly-link" href="https://ablazemuffin35.github.io/rhinus-games/" target="_blank">Rhinus Games</a>
+    <b>|</b>
+    <a class="blockly-link" href="https://microsoft.github.io/monaco-editor/" target="_blank">Monaco Editor</a>
+  </div>
+</body>
+</html>
