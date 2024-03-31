@@ -1677,3 +1677,31 @@ javascript.javascriptGenerator.forBlock['canvas_mousedown'] = function(block, ge
     var code = 'canvas_mouse';
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
+
+Blockly.Blocks['canvas_drawimage'] = {
+    init: function() {
+      this.appendDummyInput()
+          .appendField("draw image");
+      this.appendValueInput("URL")
+          .setCheck(null)
+          .appendField("URL:");
+      this.appendValueInput("X")
+          .setCheck(null)
+          .appendField("x:");
+      this.appendValueInput("Y")
+          .setCheck(null)
+          .appendField("y:");
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setColour(60);
+   this.setTooltip("");
+   this.setHelpUrl("");
+    }
+};
+javascript.javascriptGenerator.forBlock['canvas_drawimage'] = function(block, generator) {
+    var value_url = generator.valueToCode(block, 'URL', javascript.Order.ATOMIC);
+    var value_x = generator.valueToCode(block, 'X', javascript.Order.ATOMIC);
+    var value_y = generator.valueToCode(block, 'Y', javascript.Order.ATOMIC);
+    var code = `var img = new Image;\nimg.src = ${value_url};\ncontext.drawImage(img, ${value_x}, ${value_y});\n`;
+    return code;
+};
