@@ -57,7 +57,7 @@ console.log("%cStop!", "color: red; font-size: 30px; font-weight: bold");
 console.log("Don't paste any code here you don't understand, as it might be an attempt to hack your accounts.\nIf you know what you're doing, this console can be used for debugging and testing code.");
 
 //Make <body> visible
-setTimeout(function(){jQuery('body').css('opacity', '1');},500);
+setTimeout(function(){jQuery('body').css('opacity', '1');},1000);
 
 //Special Functions
 window.onbeforeunload = function()

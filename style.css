@@ -10,7 +10,7 @@ body
     background-color: #1c1a26;
     overflow: hidden;
     opacity: 0;
-    transition: opacity 0.8s;
+    transition: opacity 1s;
 }
 
 .topnav
