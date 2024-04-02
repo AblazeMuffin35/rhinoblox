@@ -1705,3 +1705,41 @@ javascript.javascriptGenerator.forBlock['canvas_drawimage'] = function(block, ge
     var code = `var img = new Image;\nimg.src = ${value_url};\ncontext.drawImage(img, ${value_x}, ${value_y});\n`;
     return code;
 };
+
+Blockly.Blocks['types_dataurl'] = {
+    init: function() {
+      this.appendValueInput("TEXT")
+          .setCheck(null)
+          .appendField("convert");
+      this.appendDummyInput()
+          .appendField("to data URL");
+      this.setOutput(true, null);
+      this.setColour(90);
+   this.setTooltip("");
+   this.setHelpUrl("");
+    }
+};
+javascript.javascriptGenerator.forBlock['types_dataurl'] = function(block, generator) {
+    var value_text = generator.valueToCode(block, 'TEXT', javascript.Order.ATOMIC);
+    var code = `('data:text/plain;charset=UTF-8,' + encodeURIComponent(${value_text}))`;
+    return [code, Blockly.JavaScript.ORDER_NONE];
+};
+
+Blockly.Blocks['types_date'] = {
+    init: function() {
+      this.appendValueInput("TEXT")
+          .setCheck(null)
+          .appendField("convert");
+      this.appendDummyInput()
+          .appendField("to date");
+      this.setOutput(true, null);
+      this.setColour(90);
+   this.setTooltip("");
+   this.setHelpUrl("");
+    }
+};
+javascript.javascriptGenerator.forBlock['types_date'] = function(block, generator) {
+    var value_text = generator.valueToCode(block, 'TEXT', javascript.Order.ATOMIC);
+    var code = `Date.parse(${value_text})`;
+    return [code, Blockly.JavaScript.ORDER_NONE];
+};
