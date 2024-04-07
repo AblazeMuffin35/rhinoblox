@@ -1740,6 +1740,6 @@ Blockly.Blocks['types_date'] = {
 };
 javascript.javascriptGenerator.forBlock['types_date'] = function(block, generator) {
     var value_text = generator.valueToCode(block, 'TEXT', javascript.Order.ATOMIC);
-    var code = `Date.parse(${value_text})`;
+    var code = `new Date(${value_text})`;
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
