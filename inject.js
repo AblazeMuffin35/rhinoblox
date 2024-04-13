@@ -308,3 +308,23 @@ canvas.onmousedown = function() {
 canvas.onmouseup = function() {
     canvas_mouse = false;
 }
+
+function digitsOfPi(digits){
+    if ((digits % 1) != 0){
+        return digitsOfPi(Math.round(digits));
+    }
+    else if (digits > 0){
+        let i = 1n;
+        let x = 3n * (10n ** (BigInt(digits)+20n));
+        let pi = x;
+        while (x > 0) {
+            x = x * i / ((i + 1n) * 4n);
+            pi += x / (i + 2n);
+            i += 2n;
+        }
+        return "3."+((pi / (10n ** 20n)).toString().slice(1));
+    }
+    else {
+        return 3;
+    }
+}

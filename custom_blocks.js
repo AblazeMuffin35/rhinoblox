@@ -1743,3 +1743,21 @@ javascript.javascriptGenerator.forBlock['types_date'] = function(block, generato
     var code = `new Date(${value_text})`;
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
+
+Blockly.Blocks['math_digitsofpi'] = {
+    init: function() {
+      this.appendValueInput("NUM")
+          .setCheck("Number");
+      this.appendDummyInput()
+          .appendField("digits of \u{3C0}");
+      this.setOutput(true, "Number");
+      this.setColour(230);
+   this.setTooltip("");
+   this.setHelpUrl("");
+    }
+};
+javascript.javascriptGenerator.forBlock['math_digitsofpi'] = function(block, generator) {
+    var value_num = generator.valueToCode(block, 'NUM', javascript.Order.ATOMIC);
+    var code = `digitsOfPi(${value_num})`;
+    return [code, Blockly.JavaScript.ORDER_NONE];
+};
