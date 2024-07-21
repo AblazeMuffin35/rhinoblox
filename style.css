@@ -28,6 +28,7 @@ body
     padding: 14px 16px;
     text-decoration: none;
     font-size: 17px;
+    transition: all 0.3s;
 }
 
 .topnav a:hover
@@ -111,6 +112,8 @@ body
     width: 30px;
     height: 30px;
     margin: 5px 5px;
+    transition: all 0.3s;
+    cursor: pointer;
 }
 .controlButton:hover{
     background-color: #3c3a46;
