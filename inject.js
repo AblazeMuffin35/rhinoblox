@@ -56,6 +56,11 @@ console.clear();
 console.log("%cStop!", "color: red; font-size: 30px; font-weight: bold");
 console.log("Don't paste any code here you don't understand, as it might be an attempt to hack your accounts.\nIf you know what you're doing, this console can be used for debugging and testing code.");
 
+//Inform user that RhinoBlox ended support and redirect to the new RhinoBlox
+if (confirm("This RhinoBlox version is outdated and ended support. You can now visit the new RhinoBlox.")) {
+    open("https://rhinoblox.vercel.app", "_self");
+}
+
 //Make <body> visible
 setTimeout(function(){jQuery('body').css('opacity', '1');},1000);
 
