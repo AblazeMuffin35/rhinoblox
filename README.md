@@ -1,4 +1,3 @@
-## RhinoBlox
-RhinoBlox is a mod of [Blockly](https://developers.google.com/blockly) designed for JavaScript apps.
-It is currently work in progress, so minor bugs and problems may be present.
-You can join our [Discord Server](https://discord.gg/YwdvExN82q) for more information or if you need help.
+## RhinoBlox Legacy
+
+RhinoBlox Legacy is the old and outdated version of RhinoBlox. Please go to https://github.com/AblazeMuffin35/new-rhinoblox if you are looking for the new RhinoBlox.
